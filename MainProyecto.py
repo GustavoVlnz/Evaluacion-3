@@ -19,10 +19,12 @@ import numpy as np
 def haversine(lat1, lon1, lat2, lon2):
     #Función para calcular la distancia entre 2 puntos a partir de la longitud
     pass
+
+
 def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=None, where_value=None):
     """
-    Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
-
+    #Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
+    
     Parámetros:
     database_name (str): Nombre del archivo de la base de datos SQLite.
     table_name (str): Nombre de la tabla para realizar la consulta.
@@ -34,16 +36,11 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect(database_name)
+    conn = sqlite3.connect("data_a_procesar.csv.csv")
     cursor = conn.cursor()
 
     # Crear la consulta SQL
-    query = f'SELECT {columns} FROM {table_name}'
-    if where_column and where_value is not None:
-        query += f' WHERE {where_column} = ?'
-
-    # Ejecutar la consulta SQL
-    cursor.execute(query, (where_value,) if where_column and where_value is not None else ())
+    query = f'SELECT {"*"} FROM {"RUT,Nombre,Apellido,Profesion,Pais,Estado_Emocional,UTM_Easting,UTM_Northing,UTM_Zone_Number,UTM_Zone_Letter"}'
 
     # Obtener los resultados de la consulta
     resultados = cursor.fetchall()
@@ -70,12 +67,14 @@ def agregar_df_a_sqlite(df, database_name, table_name):
     
     # Cerrar la conexión
     conn.close()
+
 #documentacion=https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-path-from-position-list
 def get_country_city(lat,long):
     country = tkintermapview.convert_coordinates_to_country(lat, long)
     print(country)
     city = tkintermapview.convert_coordinates_to_city(lat, long)
     return country,city
+
 # Definir la función para convertir UTM a latitud y longitud
 def utm_to_latlong(easting, northing, zone_number, zone_letter):
     # Crear el proyector UTM
@@ -369,6 +368,8 @@ label_rut.grid(row=0, column=0, padx=5, pady=5)
 optionmenu_1 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
                                                         values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
 optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
+
+
 
 
 
