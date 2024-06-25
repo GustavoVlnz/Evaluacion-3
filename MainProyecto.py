@@ -34,7 +34,7 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect(database_name)
+    conn = sqlite3.connect("data_a_procesar.csv.csv")
     cursor = conn.cursor()
 
     # Crear la consulta SQL
@@ -62,6 +62,8 @@ def agregar_df_a_sqlite(df, database_name, table_name):
     database_name (str): Nombre del archivo de la base de datos SQLite.
     table_name (str): Nombre de la tabla donde se insertará el DataFrame.
     """
+
+    dataframe=pd.read_csv("Select * from .....")
     # Conectar a la base de datos SQLite
     conn = sqlite3.connect(database_name)
     
