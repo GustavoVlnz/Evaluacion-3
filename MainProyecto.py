@@ -34,7 +34,7 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect("SELECT Nomrbe from %A% ")
+    conn = sqlite3.connect("SELECT RUT from %2%")
     cursor = conn.cursor()
 
     # Crear la consulta SQL
@@ -144,9 +144,9 @@ def editar_panel(root):
         toplevel_window.focus()
 # Función para manejar la selección del archivo
 def seleccionar_archivo():
-    archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])#No quitar el Archivos CSV 
-    if archivo:
-        print(f"Archivo seleccionado: {archivo}")
+    archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])#No quitar el Archivos CSV
+    if archivo :
+        
         mostrar_datos(archivo)
 def on_scrollbar_move(*args):
     canvas.yview(*args)
