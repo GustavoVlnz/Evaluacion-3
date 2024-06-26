@@ -19,10 +19,12 @@ import numpy as np
 def haversine(lat1, lon1, lat2, lon2):
     #Función para calcular la distancia entre 2 puntos a partir de la longitud
     pass
+
+
 def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=None, where_value=None):
     """
-    Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
-
+    #Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
+    
     Parámetros:
     database_name (str): Nombre del archivo de la base de datos SQLite.
     table_name (str): Nombre de la tabla para realizar la consulta.
@@ -34,16 +36,11 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect("SELECT Nomrbe from %A% ")
-    cursor = conn.cursor()
+    conn = sqlite3.connect("SELECT Nombre from %A% ")
+    cursor = conn.cursor
 
     # Crear la consulta SQL
-    query = f'SELECT {columns} FROM {table_name}'
-    if where_column and where_value is not None:
-        query += f' WHERE {where_column} = ?'
-
-    # Ejecutar la consulta SQL
-    cursor.execute(query, (where_value,) if where_column and where_value is not None else ())
+    query = f'SELECT {"*"} FROM {"RUT,Nombre,Apellido,Profesion,Pais,Estado_Emocional,UTM_Easting,UTM_Northing,UTM_Zone_Number,UTM_Zone_Letter"}'
 
     # Obtener los resultados de la consulta
     resultados = cursor.fetchall()
@@ -72,12 +69,14 @@ def agregar_df_a_sqlite(df, database_name, table_name):
     
     # Cerrar la conexión    
     conn.close()
+
 #documentacion=https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-path-from-position-list
 def get_country_city(lat,long):
     country = tkintermapview.convert_coordinates_to_country(lat, long)
     print(country)
     city = tkintermapview.convert_coordinates_to_city(lat, long)
     return country,city
+
 # Definir la función para convertir UTM a latitud y longitud
 def utm_to_latlong(easting, northing, zone_number, zone_letter):
     # Crear el proyector UTM
@@ -97,8 +96,7 @@ def combo_event2(value):
     result=ejecutar_query_sqlite('progra2024_final.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
     nombre_apellido=str(result[0][2])+' '+str(result[0][3])
     marker_2 = map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
-   
-    
+
 def combo_event(value):
     pass
     #mapas.set_address("moneda, santiago, chile")
@@ -130,11 +128,14 @@ def setup_toplevel(window):
 
     label = ctk.CTkLabel(window, text="ToplevelWindow")
     label.pack(padx=20, pady=20)
+
 def calcular_distancia(RUT1,RUT2):
     pass
+
 def guardar_data(row_selector):
     print(row_selector.get())
     print(row_selector.table.values)
+
 def editar_panel(root):
     global toplevel_window
     if toplevel_window is None or not toplevel_window.winfo_exists():
@@ -148,9 +149,11 @@ def seleccionar_archivo():
     if archivo:
         print(f"Archivo seleccionado: {archivo}")
         mostrar_datos(archivo)
+
 def on_scrollbar_move(*args):
     canvas.yview(*args)
     canvas.bbox("all")
+
 def leer_archivo_csv(ruta_archivo):
     try:
         datos = pd.read_csv(ruta_archivo)
@@ -174,6 +177,7 @@ def mostrar_datos(datos):
     boton_imprimir = ctk.CTkButton(
         master=data_panel_superior, text="Eliminar dato", command=lambda: editar_panel(root),fg_color='purple',hover_color='red')
     boton_imprimir.grid(row=0, column=3, padx=(10, 0))
+
 def select_frame_by_name(name):
     home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
     frame_2_button.configure(fg_color=("gray75", "gray25") if name == "frame_2" else "transparent")
@@ -285,8 +289,8 @@ scrollable_frame.grid(row=0, column=0,sticky="nsew")
 
 # Crear el segundo marco
 second_frame = ctk.CTkFrame(root, corner_radius=0, fg_color="transparent")
-#second_frame.grid_rowconfigure(0, weight=1)
-#second_frame.grid_columnconfigure(0, weight=1)
+second_frame.grid_rowconfigure(0, weight=1)
+second_frame.grid_columnconfigure(0, weight=1)
 second_frame.grid_rowconfigure(1, weight=1)
 second_frame.grid_columnconfigure(1, weight=1)
 
@@ -366,11 +370,22 @@ third_frame_top.grid(row=0, column=0,  sticky="nsew", padx=5, pady=5)
 third_frame_inf =  ctk.CTkFrame(third_frame, fg_color="lightgreen")
 third_frame_inf.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 map_widget=mapas(third_frame_inf)
-label_rut = ctk.CTkLabel(third_frame_top, text="RUT",font=ctk.CTkFont(size=15, weight="bold"))
+
+label_rut = ctk.CTkLabel(third_frame_top, text="RUT 1",font=ctk.CTkFont(size=15, weight="bold"))
 label_rut.grid(row=0, column=0, padx=5, pady=5)
+
+label_rut2 = ctk.CTkLabel(third_frame_top, text="RUT 2",font=ctk.CTkFont(size=15, weight="bold"))
+label_rut2.grid(row=10, column=0, padx=5, pady=5)
+
 optionmenu_1 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
+values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
 optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
+
+optionmenu_2 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
+values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
+optionmenu_2.grid(row=10, column=1, padx=5, pady=(5, 5))
+
+
 
 
 
