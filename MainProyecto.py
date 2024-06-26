@@ -36,19 +36,16 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect("SELECT Nombre from %A% ")
+    conn = sqlite3.connect("data_a_procesar.csv.csv")
     cursor = conn.cursor
-
     # Crear la consulta SQL
-    query = f'SELECT {"*"} FROM {"RUT,Nombre,Apellido,Profesion,Pais,Estado_Emocional,UTM_Easting,UTM_Northing,UTM_Zone_Number,UTM_Zone_Letter"}'
-
+    query = f'SELECT * FROM'
     # Obtener los resultados de la consulta
     resultados = cursor.fetchall()
-
     # Cerrar la conexión
     conn.close()
-
     return resultados
+
 
 def agregar_df_a_sqlite(df, database_name, table_name):
     """
@@ -61,14 +58,17 @@ def agregar_df_a_sqlite(df, database_name, table_name):
     """
 
     dataframe=pd.read_csv("*.csv")
+    print(dataframe)
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect(database_name)
-    
+    conn = sqlite3.connect("*.csv")
     # Agregar el DataFrame a la tabla SQLite
-    df.to_sql("RUT", conn, if_exists='replace', index=False)
-    
+    df.to_sql("", conn, if_exists='replace', index=False)
     # Cerrar la conexión    
     conn.close()
+
+dataframe=pd.read_csv("data_a_procesar.csv.csv")
+print(dataframe)
+
 
 #documentacion=https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-path-from-position-list
 def get_country_city(lat,long):
@@ -104,6 +104,7 @@ def combo_event(value):
     #mapas.set_zoom(15)
     #address = tkintermapview.convert_address_to_coordinates("London")
     #print(address)
+
 def center_window(window, width, height):
     # Obtener el tamaño de la ventana principal
     root.update_idletasks()
