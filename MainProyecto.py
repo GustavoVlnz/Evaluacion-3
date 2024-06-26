@@ -36,8 +36,10 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-    conn = sqlite3.connect("data_a_procesar.csv.csv")
-    cursor = conn.cursor()
+lope
+    conn = sqlite3.connect("SELECT Nomrbe from %A% ")======
+    conn = sqlite3.connect("data_a_procesar.csv.csv")s
+    cursor = conn.cursor)
 
     # Crear la consulta SQL
     query = f'SELECT {"*"} FROM {"RUT,Nombre,Apellido,Profesion,Pais,Estado_Emocional,UTM_Easting,UTM_Northing,UTM_Zone_Number,UTM_Zone_Letter"}'
@@ -59,13 +61,15 @@ def agregar_df_a_sqlite(df, database_name, table_name):
     database_name (str): Nombre del archivo de la base de datos SQLite.
     table_name (str): Nombre de la tabla donde se insertará el DataFrame.
     """
+
+    dataframe=pd.read_csv("*.csv")
     # Conectar a la base de datos SQLite
     conn = sqlite3.connect(database_name)
     
     # Agregar el DataFrame a la tabla SQLite
-    df.to_sql(table_name, conn, if_exists='replace', index=False)
+    df.to_sql("RUT", conn, if_exists='replace', index=False)
     
-    # Cerrar la conexión
+    # Cerrar la conexión    
     conn.close()
 
 #documentacion=https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-path-from-position-list
@@ -141,7 +145,7 @@ def editar_panel(root):
         toplevel_window.focus()
 # Función para manejar la selección del archivo
 def seleccionar_archivo():
-    archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])
+    archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])#No quitar el Archivos CSV 
     if archivo:
         print(f"Archivo seleccionado: {archivo}")
         mostrar_datos(archivo)
