@@ -36,14 +36,14 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-<<<<<<< HEAD
+
     conn = sqlite3.connect("SELECT RUT from %2%")
     cursor = conn.cursor()
 
-=======
+
     conn = sqlite3.connect("data_a_procesar.csv.csv")
     cursor = conn.cursor
->>>>>>> 9e6929b4ac2d402eaeba00c287bf3408714bdbaa
+
     # Crear la consulta SQL
     query = f'SELECT * FROM'
     # Obtener los resultados de la consulta
@@ -72,7 +72,7 @@ def agregar_df_a_sqlite(df, database_name, table_name):
     # Cerrar la conexión    
     conn.close()
 
-dataframe=pd.read_csv("data_a_procesar.csv.csv")
+ola=dataframe=pd.read_csv("data_a_procesar.csv.csv")
 print(dataframe)
 
 
@@ -224,7 +224,18 @@ def mapas(panel):
 root = ctk.CTk()
 root.title("Proyecto Final progra I 2024")
 root.geometry("950x450")
+root =ola.CTk()
 
+value = [[1,2,3,4,5],
+         [1,2,3,4,5],
+         [1,2,3,4,5],
+         [1,2,3,4,5],
+         [1,2,3,4,5]]
+
+table = CTkTable(master=root, row=5, column=5, values=value)
+table.pack(expand=True, fill="both", padx=20, pady=20)
+
+root.mainloop()
 # Configurar el diseño de la ventana principal
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
