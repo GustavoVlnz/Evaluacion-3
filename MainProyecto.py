@@ -72,7 +72,7 @@ def agregar_df_a_sqlite(df, database_name, table_name):
     # Cerrar la conexión    
     conn.close()
 
-ola=dataframe=pd.read_csv("data_a_procesar.csv.csv")
+dataframe=pd.read_csv("data_a_procesar.csv.csv")
 print(dataframe)
 
 
@@ -224,7 +224,7 @@ def mapas(panel):
 root = ctk.CTk()
 root.title("Proyecto Final progra I 2024")
 root.geometry("950x450")
-root =ola.CTk()
+root = dataframe.CTk()##Aqui se agrega los datos de la data frame.
 
 value = [[1,2,3,4,5],
          [1,2,3,4,5],
