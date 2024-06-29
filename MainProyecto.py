@@ -21,10 +21,36 @@ def haversine(lat1, lon1, lat2, lon2):
     pass
 
 
+def csv_a_sqlite(csv_file, database_name, table_name):
+    """
+    Convierte un archivo CSV a una base de datos SQLite.
+
+    Parámetros:
+    csv_file (str): Nombre del archivo CSV.
+    database_name (str): Nombre del archivo de la base de datos SQLite.
+    table_name (str): Nombre de la tabla para almacenar los datos del CSV.
+    """
+    # Leer el archivo CSV en un DataFrame de pandas
+    df = pd.read_csv(csv_file)
+    # Imprimir las primeras filas del DataFrame para verificar que se ha leído correctamente
+    print("Primeras filas del DataFrame:")
+    print(df.head())
+    # Conectar a la base de datos SQLite (o crearla si no existe)
+    conn = sqlite3.connect(database_name)
+    # Insertar los datos del DataFrame en una tabla de la base de datos
+    df.to_sql(table_name, conn, if_exists='replace', index=False)
+    # Cerrar la conexión
+    conn.close()
+
+csv_file = "data_a_procesar.csv.csv" 
+database_name = "data_a_procesar.db"
+table_name = "Informacion"
+csv_a_sqlite("data_a_procesar.csv.csv", "data_a_procesar.db", "Informacion")
+
 def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=None, where_value=None):
     """
-    #Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
-    
+    Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
+
     Parámetros:
     database_name (str): Nombre del archivo de la base de datos SQLite.
     table_name (str): Nombre de la tabla para realizar la consulta.
@@ -36,45 +62,21 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     list: Lista con los resultados de la consulta.
     """
     # Conectar a la base de datos SQLite
-
-    conn = sqlite3.connect("SELECT RUT from %2%")
+    conn = sqlite3.connect(database_name)
     cursor = conn.cursor()
-
-
-    conn = sqlite3.connect("data_a_procesar.csv.csv")
-    cursor = conn.cursor
-
     # Crear la consulta SQL
-    query = f'SELECT * FROM'
+    query = f'SELECT {columns} FROM {table_name}'
+    if where_column and where_value is not None:
+        query += f' WHERE {where_column} = ?'
+    # Ejecutar la consulta SQL
+    cursor.execute(query, (where_value,) if where_column and where_value is not None else ())
     # Obtener los resultados de la consulta
     resultados = cursor.fetchall()
-    # Cerrar la conexión
-    conn.close()
-    return resultados
+    indices = [description[0] for description in cursor.description]
 
-
-def agregar_df_a_sqlite(df, database_name, table_name):
-    """
-    Agrega un DataFrame a una tabla SQLite.
-
-    Parámetros:
-    df (pd.DataFrame): DataFrame a agregar a la base de datos.
-    database_name (str): Nombre del archivo de la base de datos SQLite.
-    table_name (str): Nombre de la tabla donde se insertará el DataFrame.
-    """
-
-    dataframe=pd.read_csv("*.csv")
-    print(dataframe)
-    # Conectar a la base de datos SQLite
-    conn = sqlite3.connect("*.csv")
-    # Agregar el DataFrame a la tabla SQLite
-    df.to_sql("", conn, if_exists='replace', index=False)
-    # Cerrar la conexión    
     conn.close()
 
-ola=dataframe=pd.read_csv("data_a_procesar.csv.csv")
-print(dataframe)
-
+    return indices, resultados
 
 #documentacion=https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-path-from-position-list
 def get_country_city(lat,long):
@@ -82,8 +84,8 @@ def get_country_city(lat,long):
     print(country)
     city = tkintermapview.convert_coordinates_to_city(lat, long)
     return country,city
-
 # Definir la función para convertir UTM a latitud y longitud
+
 def utm_to_latlong(easting, northing, zone_number, zone_letter):
     # Crear el proyector UTM
     utm_proj = pyproj.Proj(proj='utm', zone=zone_number, datum='WGS84')
@@ -91,9 +93,11 @@ def utm_to_latlong(easting, northing, zone_number, zone_letter):
     # Convertir UTM a latitud y longitud
     longitude, latitude = utm_proj(easting, northing, inverse=True)
     return round(latitude,2), round(longitude,2)
+
 def insertar_data(data:list):
     pass
     #necesitamos convertir las coordenadas UTM a lat long
+
 def combo_event2(value):
     try:
         marker_2.delete()
@@ -104,12 +108,11 @@ def combo_event2(value):
     marker_2 = map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
 
 def combo_event(value):
-    pass
-    #mapas.set_address("moneda, santiago, chile")
-    #mapas.set_position(48.860381, 2.338594)  # Paris, France
-    #mapas.set_zoom(15)
-    #address = tkintermapview.convert_address_to_coordinates("London")
-    #print(address)
+    mapas.set_address("moneda, santiago, chile")
+    mapas.set_position(48.860381, 2.338594)  # Paris, France
+    mapas.set_zoom(15)
+    address = tkintermapview.convert_address_to_coordinates("London")
+    print(address)
 
 def center_window(window, width, height):
     # Obtener el tamaño de la ventana principal
@@ -151,16 +154,17 @@ def editar_panel(root):
     else:
         toplevel_window.focus()
 # Función para manejar la selección del archivo
+
 def seleccionar_archivo():
-    archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])#No quitar el Archivos CSV
-    if archivo :
-        
+    archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])
+    if archivo:
+        print(f"Archivo seleccionado: {archivo}")
         mostrar_datos(archivo)
 
 def on_scrollbar_move(*args):
     canvas.yview(*args)
     canvas.bbox("all")
-
+    
 def leer_archivo_csv(ruta_archivo):
     try:
         datos = pd.read_csv(ruta_archivo)
@@ -168,9 +172,24 @@ def leer_archivo_csv(ruta_archivo):
     except Exception as e:
         print(f"Error al leer el archivo CSV: {e}")
 
+
 # Función para mostrar los datos en la tabla
 def mostrar_datos(datos):
-    # Botón para imprimir las filas seleccionadas
+
+    nombreIndices, resultados = ejecutar_query_sqlite(database_name, table_name)
+    tabla = ctk.CTkTextbox(home_frame, width=800, height=400)
+    tabla.grid(row=1, column=0, padx=20, pady=20)
+    
+    encabezados = "\t".join(nombreIndices) + "\n"
+    tabla.insert(ctk.END, encabezados)
+
+    for fila in resultados:
+        texto_fila = "\t".join(map(str, fila)) + "\n"
+        tabla.insert(ctk.END, texto_fila)
+    
+    tabla.configure(state='disabled')
+
+
     boton_imprimir = ctk.CTkButton(
         master=home_frame, text="guardar informacion", command=lambda: guardar_data())
     boton_imprimir.grid(row=2, column=0, pady=(0, 20))
@@ -184,6 +203,12 @@ def mostrar_datos(datos):
     boton_imprimir = ctk.CTkButton(
         master=data_panel_superior, text="Eliminar dato", command=lambda: editar_panel(root),fg_color='purple',hover_color='red')
     boton_imprimir.grid(row=0, column=3, padx=(10, 0))
+
+    home_frame_cargar_datos = ctk.CTkButton(data_panel_superior, command=mostrar_datos, text="Cargar Archivo", fg_color='green', hover_color='gray')
+    home_frame_cargar_datos.grid(row=0, column=1, padx=15, pady=15)
+
+
+
 
 def select_frame_by_name(name):
     home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
@@ -214,28 +239,19 @@ def frame_3_button_event():
 
 def change_appearance_mode_event(new_appearance_mode):
     ctk.set_appearance_mode(new_appearance_mode)
+
 def mapas(panel):
     # create map widget
     map_widget = tkintermapview.TkinterMapView(panel,width=800, height=500, corner_radius=0)
     #map_widget.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
     map_widget.pack(fill=ctk.BOTH, expand=True)
     return map_widget
+
 # Crear la ventana principal
 root = ctk.CTk()
 root.title("Proyecto Final progra I 2024")
 root.geometry("950x450")
-root =ola.CTk()
 
-value = [[1,2,3,4,5],
-         [1,2,3,4,5],
-         [1,2,3,4,5],
-         [1,2,3,4,5],
-         [1,2,3,4,5]]
-
-table = CTkTable(master=root, row=5, column=5, values=value)
-table.pack(expand=True, fill="both", padx=20, pady=20)
-
-root.mainloop()
 # Configurar el diseño de la ventana principal
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
@@ -307,8 +323,8 @@ scrollable_frame.grid(row=0, column=0,sticky="nsew")
 
 # Crear el segundo marco
 second_frame = ctk.CTkFrame(root, corner_radius=0, fg_color="transparent")
-second_frame.grid_rowconfigure(0, weight=1)
-second_frame.grid_columnconfigure(0, weight=1)
+#second_frame.grid_rowconfigure(0, weight=1)
+#second_frame.grid_columnconfigure(0, weight=1)
 second_frame.grid_rowconfigure(1, weight=1)
 second_frame.grid_columnconfigure(1, weight=1)
 
@@ -387,7 +403,6 @@ third_frame_top.grid(row=0, column=0,  sticky="nsew", padx=5, pady=5)
 
 third_frame_inf =  ctk.CTkFrame(third_frame, fg_color="lightgreen")
 third_frame_inf.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
-map_widget=mapas(third_frame_inf)
 
 label_rut = ctk.CTkLabel(third_frame_top, text="RUT 1",font=ctk.CTkFont(size=15, weight="bold"))
 label_rut.grid(row=0, column=0, padx=5, pady=5)
@@ -402,11 +417,6 @@ optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
 optionmenu_2 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
 values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
 optionmenu_2.grid(row=10, column=1, padx=5, pady=(5, 5))
-
-
-
-
-
 
 
 
