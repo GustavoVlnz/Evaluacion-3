@@ -24,15 +24,14 @@ def haversine(lat1, lon1, lat2, lon2):#Funcion para calcular la distancia entre 
     a=(math.sin(rad*dlat/2))**2+math.cos(rad*lat1)*math.cos(rad*lat2)*(math.sin(rad*dlon/2))**2
     distancia=2*R*math.asin(math.sqrt(a))
 
-
+  
     
 
     
 
 
-    pass
+    return print(distancia) 
 
-print(haversine)
 
 def csv_a_sqlite(csv_file, database_name, table_name):
     """
@@ -55,10 +54,15 @@ def csv_a_sqlite(csv_file, database_name, table_name):
     # Cerrar la conexión
     conn.close()
 
+
+
+
 csv_file = "data_a_procesar.csv.csv" 
 database_name = "data_a_procesar.db"
 table_name = "Informacion"
 csv_a_sqlite("data_a_procesar.csv.csv", "data_a_procesar.db", "Informacion")
+
+
 
 
 
@@ -78,6 +82,11 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     """
     # Conectar a la base de datos SQLite
     conn = sqlite3.connect(database_name)
+    ruts = cursor.fetchall()
+
+    # Impresión de los RUTs
+    for rut in ruts:
+        print(rut[0])
     cursor = conn.cursor()
 
 
@@ -95,20 +104,10 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
 
     conn.close()
 
-    return indices, resultados
+    return print(rut) #indices, resultados
 
 
 
-    # Ejecutar la consulta SQL
-    cursor.execute(query, (where_value,) if where_column and where_value is not None else ())
-
-    # Obtener los resultados de la consulta
-    resultados = cursor.fetchall()
-
-    # Cerrar la conexión
-    conn.close()
-
-    return resultados
 
 def agregar_df_a_sqlite(df, database_name, table_name):
     """
@@ -144,7 +143,12 @@ def utm_to_latlong(easting, northing, zone_number, zone_letter):
     longitude, latitude = utm_proj(easting, northing, inverse=True)
     return round(latitude,2), round(longitude,2)
 
+
+
+
 def insertar_data(data:list):
+
+    
     pass
     #necesitamos convertir las coordenadas UTM a lat long
 
@@ -166,7 +170,9 @@ def combo_event(value):
     address = tkintermapview.convert_address_to_coordinates("London")
     print(address)
 
-
+    ruts_list = csv_file  # Replace with your function to fetch RUTs
+    optionmenu_1.set_values(ruts_list)
+    
     pass
     #mapas.set_address("moneda, santiago, chile")
     #mapas.set_position(48.860381, 2.338594)  # Paris, France
@@ -257,6 +263,8 @@ def mostrar_datos(datos):
         for row in spamreader:
             print(', '.join(row))
 
+
+  
 
     # Botón para imprimir las filas seleccionadas
     boton_imprimir = ctk.CTkButton(
@@ -482,7 +490,8 @@ label_rut = ctk.CTkLabel(third_frame_top, text="RUT",font=ctk.CTkFont(size=15, w
 
 label_rut.grid(row=0, column=0, padx=5, pady=5)
 optionmenu_1 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
+values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
+
 optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
 
 
