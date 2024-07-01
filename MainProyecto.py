@@ -24,15 +24,14 @@ def haversine(lat1, lon1, lat2, lon2):#Funcion para calcular la distancia entre 
     a=(math.sin(rad*dlat/2))**2+math.cos(rad*lat1)*math.cos(rad*lat2)*(math.sin(rad*dlon/2))**2
     distancia=2*R*math.asin(math.sqrt(a))
 
-
+  
     
 
     
 
 
-    pass
+    return print(distancia) 
 
-print(haversine)
 
 def csv_a_sqlite(csv_file, database_name, table_name):
     """
@@ -54,6 +53,9 @@ def csv_a_sqlite(csv_file, database_name, table_name):
     df.to_sql(table_name, conn, if_exists='replace', index=False)
     # Cerrar la conexión
     conn.close()
+
+
+
 
 csv_file = "data_a_procesar.csv.csv" 
 database_name = "data_a_procesar.db"
@@ -91,23 +93,15 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     # Obtener los resultados de la consulta
     resultados = cursor.fetchall()
     indices = [description[0] for description in cursor.description]
-
+    # Impresión de los RUTs
+    for rut in resultados:
+        print(rut[0])
     conn.close()
 
-    return indices, resultados
+    return [indices, resultados]
 
 
 
-    # Ejecutar la consulta SQL
-    cursor.execute(query, (where_value,) if where_column and where_value is not None else ())
-
-    # Obtener los resultados de la consulta
-    resultados = cursor.fetchall()
-
-    # Cerrar la conexión
-    conn.close()
-
-    return resultados
 
 def agregar_df_a_sqlite(df, database_name, table_name):
     """
@@ -143,7 +137,12 @@ def utm_to_latlong(easting, northing, zone_number, zone_letter):
     longitude, latitude = utm_proj(easting, northing, inverse=True)
     return round(latitude,2), round(longitude,2)
 
+
+
+
 def insertar_data(data:list):
+
+    
     pass
     #necesitamos convertir las coordenadas UTM a lat long
 
@@ -152,7 +151,7 @@ def combo_event2(value):
         marker_2.delete()
     except NameError:
         pass
-    result=ejecutar_query_sqlite('progra2024_final.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
+    result=ejecutar_query_sqlite('data_a_procesar.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
     nombre_apellido=str(result[0][2])+' '+str(result[0][3])
     marker_2 = map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
    
@@ -165,7 +164,9 @@ def combo_event(value):
     address = tkintermapview.convert_address_to_coordinates("London")
     print(address)
 
-
+    ruts_list = csv_file  # Replace with your function to fetch RUTs
+    optionmenu_1.set_values(ruts_list)
+    
     pass
     #mapas.set_address("moneda, santiago, chile")
     #mapas.set_position(48.860381, 2.338594)  # Paris, France
@@ -256,6 +257,8 @@ def mostrar_datos(datos):
         for row in spamreader:
             print(', '.join(row))
 
+
+  
 
     # Botón para imprimir las filas seleccionadas
     boton_imprimir = ctk.CTkButton(
@@ -512,13 +515,15 @@ label_rut = ctk.CTkLabel(third_frame_top, text="RUT",font=ctk.CTkFont(size=15, w
 
 label_rut.grid(row=0, column=0, padx=5, pady=5)
 optionmenu_1 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
+values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
+
 optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
 
 
 optionmenu_2 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
 values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
-optionmenu_2.grid(row=10, column=1, padx=5, pady=(5, 5))
+optionmenu_2.grid(row=0, column=1, padx=5, pady=(5, 5))
+
 
 
 
