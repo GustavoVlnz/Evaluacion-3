@@ -82,11 +82,6 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     """
     # Conectar a la base de datos SQLite
     conn = sqlite3.connect(database_name)
-    ruts = cursor.fetchall()
-
-    # Impresión de los RUTs
-    for rut in ruts:
-        print(rut[0])
     cursor = conn.cursor()
 
 
@@ -101,10 +96,12 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     # Obtener los resultados de la consulta
     resultados = cursor.fetchall()
     indices = [description[0] for description in cursor.description]
-
+    # Impresión de los RUTs
+    for rut in resultados:
+        print(rut[0])
     conn.close()
 
-    return print(rut) #indices, resultados
+    return [indices, resultados]
 
 
 
@@ -157,7 +154,7 @@ def combo_event2(value):
         marker_2.delete()
     except NameError:
         pass
-    result=ejecutar_query_sqlite('progra2024_final.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
+    result=ejecutar_query_sqlite('data_a_procesar.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
     nombre_apellido=str(result[0][2])+' '+str(result[0][3])
     marker_2 = map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
    
@@ -497,7 +494,8 @@ optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
 
 optionmenu_2 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
 values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
-optionmenu_2.grid(row=10, column=1, padx=5, pady=(5, 5))
+optionmenu_2.grid(row=0, column=1, padx=5, pady=(5, 5))
+
 
 
 
