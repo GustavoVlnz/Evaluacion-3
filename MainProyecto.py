@@ -63,9 +63,6 @@ table_name = "Informacion"
 csv_a_sqlite("data_a_procesar.csv.csv", "data_a_procesar.db", "Informacion")
 
 
-
-
-
 def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=None, where_value=None):
     """
     Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
@@ -398,8 +395,8 @@ scrollable_frame.grid(row=0, column=0,sticky="nsew")
 
 # Crear el segundo marco
 second_frame = ctk.CTkFrame(root, corner_radius=0, fg_color="transparent")
-#second_frame.grid_rowconfigure(0, weight=1)
-#second_frame.grid_columnconfigure(0, weight=1)
+second_frame.grid_rowconfigure(0, weight=1)
+second_frame.grid_columnconfigure(0, weight=1)
 second_frame.grid_rowconfigure(1, weight=1)
 second_frame.grid_columnconfigure(1, weight=1)
 
@@ -425,30 +422,61 @@ top_left_panel.pack(side=ctk.LEFT, fill=ctk.X, expand=True)
 top_right_panel = ctk.CTkFrame(top_frame)
 top_right_panel.pack(side=ctk.RIGHT, fill=ctk.X, expand=True)
 
-# Agregar un Combobox al panel superior izquierdo
-combobox_left = ctk.CTkComboBox(top_left_panel, values=["Opción 1", "Opción 2", "Opción 3"])
-combobox_left.pack(pady=20, padx=20)
-
 # Agregar un Combobox al panel superior derecho
 combobox_right = ctk.CTkComboBox(top_right_panel, values=["Opción 1", "Opción 2", "Opción 3"])
 combobox_right.pack(pady=20, padx=20)
-# Crear el gráfico de barras en el panel izquierdo
-fig1, ax1 = plt.subplots()
-profesiones = ["Profesion A", "Profesion B", "Profesion C", "Profesion D", "Profesion E"]
-paises = ["País 1", "País 2", "País 3", "País 4", "País 5"]
-x = np.arange(len(profesiones))
-y = np.random.rand(len(profesiones))
-ax1.bar(x, y)
-ax1.set_xticks(x)
-ax1.set_xticklabels(profesiones)
-ax1.set_xlabel("Profesiones")
-ax1.set_ylabel("Numero de profesionales")
-ax1.set_title("Profesiones vs Paises")
 
-# Integrar el gráfico en el panel izquierdo
+
+
+
+
+# Agregar un Combobox al panel superior izquierdo
+combobox_left = ctk.CTkComboBox(top_left_panel, values=["Chile", "Rusia", "Corea del Sur", "China"])
+combobox_left.pack(pady=20, padx=20)
+# Crear el gráfico de barras en el panel izquierdo
+conn = sqlite3.connect('data_a_procesar.db')
+cursor = conn.cursor()
+
+query = """
+    SELECT
+    pais,
+    COUNT(DISTINCT Profesion) AS cantidad_profesiones
+    FROM
+    Informacion
+    GROUP BY
+    pais;
+"""
+
+cursor.execute(query)
+data = cursor.fetchall()
+conn.close()
+
+# Preparar los datos
+paises = [row[0] for row in data]
+cantidad_profesiones = [row[1] for row in data]
+x = np.arange(len(paises))
+
+# Crear el gráfico
+fig1, ax1 = plt.subplots()
+ax1.bar(x, cantidad_profesiones)
+ax1.set_xticks(x)
+ax1.set_xticklabels(paises, rotation=45, ha="right")
+ax1.set_xlabel("Países")
+ax1.set_ylabel("Número de Profesiones")
+ax1.set_title("Profesiones por Pais")
+
 canvas1 = FigureCanvasTkAgg(fig1, master=left_panel)
 canvas1.draw()
 canvas1.get_tk_widget().pack(side=ctk.TOP, fill=ctk.BOTH, expand=True)
+
+
+
+
+
+
+
+
+
 
 # Crear el gráfico de torta en el panel derecho
 fig2, ax2 = plt.subplots()
