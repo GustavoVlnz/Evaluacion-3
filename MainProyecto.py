@@ -28,10 +28,11 @@ def haversine(lat1, lon1, lat2, lon2):#Funcion para calcular la distancia entre 
     dlat=lat2-lat1
     dlon=lon2-lon1
     R=48.860381, 2.338594
-    a=(math.sin(rad*dlat/2))**2+math.cos(rad*lat1)*math.cos(rad*lat2)*(math.sin(rad*dlon/2))**2
+    a=(math.sin(rad*dlat/2))*2+math.cos(rad*lat1)*math.cos(rad*lat2)(math.sin(rad*dlon/2))**2
     distancia=2*R*math.asin(math.sqrt(a))
-    pass
-print(haversine)
+
+    return distancia
+
 
 
 def csv_a_sqlite(csv_file, database_name, table_name):
@@ -67,6 +68,9 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     resultados = cursor.fetchall()
     indices = [description[0] for description in cursor.description]
 
+    # Impresion de los RUTs
+    for rut in resultados:
+        print(rut[0])
     conn.close()
     return indices, resultados
 
@@ -124,6 +128,8 @@ def combo_event(value):
     print(address)
 
 
+    ruts_list = ("csv_file")
+    optionmenu_1.set_values(ruts_list)
     pass
     #mapas.set_address("moneda, santiago, chile")
     #mapas.set_position(48.860381, 2.338594)  # Paris, France
@@ -153,14 +159,18 @@ def setup_toplevel(window):
     window.focus_force()  # Forzar el enfoque en la ventana secundaria
     window.grab_set()  # Evita la interacción con la ventana principal
 
+
     label = ctk.CTkLabel(window, text="ToplevelWindow")
     label.pack(padx=20, pady=20)
+
 def calcular_distancia(RUT1,RUT2):
     
     pass
+
 def guardar_data(row_selector):
     print(row_selector.get())
     print(row_selector.table.values)
+
 def editar_panel(root):
     global toplevel_window
     if toplevel_window is None or not toplevel_window.winfo_exists():
@@ -175,13 +185,11 @@ def seleccionar_archivo():
     if archivo:
         print(f"Archivo seleccionado: {archivo}")
         mostrar_datos(archivo)
+
 def on_scrollbar_move(*args):
-    canvas.yview(*args)
-    canvas.bbox("all")
-
+    canvas1.yview(*args)
+    canvas1.bbox("all")
     
-
-
 def leer_archivo_csv(ruta_archivo):
     try:
         datos = pd.read_csv(ruta_archivo)
@@ -189,19 +197,17 @@ def leer_archivo_csv(ruta_archivo):
     except Exception as e:
         print(f"Error al leer el archivo CSV: {e}")
 
-
 def tabla():
-    def abrir_csv(archivo_csv):
-        dataframe = pd.read_csv(archivo_csv)
+    def abrir_csv(archivo):
+        dataframe = pd.read_csv(archivo)
         encabezado = dataframe.columns.tolist()
         data= dataframe.values.tolist()
-        data.insert(0, encabezado)
+        data.insert(0,encabezado)
         return data
-    
-    archivo_csv="data_a_procesar.csv.csv"
-    data = abrir_csv(archivo_csv)
+
+    data=abrir_csv("data_a_procesar.csv.csv")
     tabla_ordenada=CTkTable(master=scrollable_frame, row=len(data), column=len(data[0]), values=data)
-    tabla_ordenada.pack(expand= True, fill = "both", padx=15, pady=15)
+    tabla_ordenada.pack(expand=True, fill= "both", padx=15, pady=15)
 
 
 # Función para mostrar los datos en la tabla
@@ -369,7 +375,10 @@ top_right_panel = ctk.CTkFrame(top_frame)
 top_right_panel.pack(side=ctk.RIGHT, fill=ctk.X, expand=True)
 
 # Agregar un Combobox al panel superior derecho
-combobox_right = ctk.CTkComboBox(top_right_panel, values=["Opción 1", "Opción 2", "Opción 3"])
+conn = sqlite3.connect('data_a_procesar.db')
+cursor = conn.cursor()
+emotions= [emocion[0] for emocion in cursor.execute("SELECT DISTINCT Estado_Emocional FROM Informacion").fetchall()]
+combobox_right = ctk.CTkComboBox(top_right_panel, values=emotions)
 combobox_right.pack(pady=20, padx=20)
 
 
@@ -377,39 +386,42 @@ combobox_right.pack(pady=20, padx=20)
 
 
 # Agregar un Combobox al panel superior izquierdo
-combobox_left = ctk.CTkComboBox(top_left_panel, values=["Chile", "Rusia", "Corea del Sur", "China"])
+
+paises= [pais[0] for pais in cursor.execute("SELECT DISTINCT Pais FROM Informacion").fetchall()]
+combobox_left = ctk.CTkComboBox(top_left_panel, values= paises)
 combobox_left.pack(pady=20, padx=20)
-# Crear el gráfico de barras en el panel izquierdo
-conn = sqlite3.connect('data_a_procesar.db')
-cursor = conn.cursor()
+# Crear el grafico de barras en el panel izquierdo
 
-query = """
-    SELECT
-    pais,
-    COUNT(DISTINCT Profesion) AS cantidad_profesiones
-    FROM
-    Informacion
-    GROUP BY
-    pais;
-"""
 
-cursor.execute(query)
+
+cant_p=cursor.execute("Select count(Profesion) FROM Informacion WHERE Pais = Profesion GROUP BY Profesion")
+#query = """
+    #SELECT
+    #pais,
+    #COUNT(DISTINCT Profesion) AS cantidad_profesiones
+    #FROM
+   # Informacion
+  #  GROUP BY
+ #   pais;
+#"""
+
+#cursor.execute(query)
 data = cursor.fetchall()
 conn.close()
 
 # Preparar los datos
-paises = [row[0] for row in data]
-cantidad_profesiones = [row[1] for row in data]
-x = np.arange(len(paises))
+#paises = [row[0] for row in data]
+#cantidad_profesiones = [row[1] for row in data]
+#x = np.arange(len(paises))
 
 # Crear el gráfico
 fig1, ax1 = plt.subplots()
-ax1.bar(x, cantidad_profesiones)
-ax1.set_xticks(x)
-ax1.set_xticklabels(paises, rotation=45, ha="right")
-ax1.set_xlabel("Países")
-ax1.set_ylabel("Número de Profesiones")
-ax1.set_title("Profesiones por Pais")
+#ax1.bar(fig1, ax1)
+#ax1.set_xticks(fig1)
+#ax1.set_xticklabels(paises, rotation=45, ha="right")
+#ax1.set_xlabel("Profesion")
+#ax1.set_ylabel("cantidad de empleados")
+#ax1.set_title("Profesiones por Pais")
 
 canvas1 = FigureCanvasTkAgg(fig1, master=left_panel)
 canvas1.draw()
@@ -453,17 +465,19 @@ third_frame_top.grid(row=0, column=0,  sticky="nsew", padx=5, pady=5)
 third_frame_inf =  ctk.CTkFrame(third_frame, fg_color="lightgreen")
 third_frame_inf.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
-
 label_rut = ctk.CTkLabel(third_frame_top, text="RUT 1",font=ctk.CTkFont(size=15, weight="bold"))
 
 map_widget=mapas(third_frame_inf)
 label_rut = ctk.CTkLabel(third_frame_top, text="RUT",font=ctk.CTkFont(size=15, weight="bold"))
 
 label_rut.grid(row=0, column=0, padx=5, pady=5)
-optionmenu_1 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
-optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
 
+label_rut2 = ctk.CTkLabel(third_frame_top, text="RUT 2",font=ctk.CTkFont(size=15, weight="bold"))
+label_rut2.grid(row=10, column=0, padx=5, pady=5)
+
+optionmenu_1 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
+values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
+optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
 
 optionmenu_2 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
 values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
