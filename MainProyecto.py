@@ -371,7 +371,8 @@ top_right_panel.pack(side=ctk.RIGHT, fill=ctk.X, expand=True)
 conn = sqlite3.connect('data_a_procesar.db')
 cursor = conn.cursor()
 emotions= [emocion[0] for emocion in cursor.execute("SELECT DISTINCT Estado_Emocional FROM Informacion").fetchall()]
-combobox_right = ctk.CTkComboBox(top_right_panel, values=emotions)
+combobox_right = ctk.CTkComboBox(top_right_panel,state="readonly", values=emotions)
+combobox_right.set("seleccione estado emocional")
 combobox_right.pack(pady=20, padx=20)
 
 
@@ -380,14 +381,92 @@ combobox_right.pack(pady=20, padx=20)
 
 # Agregar un Combobox al panel superior izquierdo
 
-paises= [pais[0] for pais in cursor.execute("SELECT DISTINCT Pais FROM Informacion").fetchall()]
-combobox_left = ctk.CTkComboBox(top_left_panel, values= paises)
+
+# Connect to the database
+conn = sqlite3.connect('data_a_procesar.db')
+cursor = conn.cursor()
+
+def combo_evento(selected_value):
+    print(f"Selected Value: {selected_value}")
+    create_bar_chart(selected_value)
+
+paises = [pais[0] for pais in cursor.execute("SELECT DISTINCT Pais FROM Informacion").fetchall()]
+combobox_left = ctk.CTkComboBox(top_left_panel, state="readonly", values=paises, command=combo_evento)
 combobox_left.pack(pady=20, padx=20)
-# Crear el grafico de barras en el panel izquierdo
+combobox_left.set("Seleccione el país")
+
+def create_bar_chart(selected_country):
+    profesiones = [prof[0] for prof in cursor.execute("SELECT DISTINCT Profesion FROM Informacion WHERE Pais = ?", (selected_country,)) if prof]
+    if not profesiones:
+        print(f"No hay profesiones para el país seleccionado: {selected_country}")
+        return
+
+    sizes = cursor.execute("SELECT COUNT(Profesion) FROM Informacion WHERE Pais = ? GROUP BY Profesion", (selected_country)).fetchall()
+    
+
+    fig1, ax = plt.subplots()
+    labels = profesiones
+    sizes = sizes
+
+    ax.bar(labels, sizes, color='skyblue')
+
+    ax.set_xlabel("Categorías")
+    ax.set_ylabel("Valores")
+    fig1.suptitle(f"Grafico de Barras - Profesiones en {selected_country}")
+    ax.set_xticks(rotation=45, ha='right')
+
+    canvas1 = FigureCanvasTkAgg(fig1, master=left_panel)
+    canvas1.draw()
+    canvas1.get_tk_widget().pack(side=ctk.TOP, fill=ctk.BOTH, expand=True)
 
 
 
-cant_p=cursor.execute("Select count(Profesion) FROM Informacion WHERE Pais =  GROUP BY Profesion")
+#def get_employee_counts_by_profession(selected_country):
+  #  prof = "SELECT COUNT(Profesion) AS count, Profesion FROM Informacion WHERE Pais = {selected_country} GROUP BY Profesion"
+   # cursor.execute(prof, (selected_country))
+    #cant_p=cursor.execute("Select count(Profesion) FROM Informacion WHERE Pais = {selected_country}  GROUP BY Profesion")
+    #professions = []  # List to store profession labels
+    #counts = []  # List to store corresponding employee counts
+    
+    #cursor.execute(prof)
+ #   results = cursor.fetchall()
+  #  for row in results:
+   #     professions.append(row[0])
+    #    counts.append(row[1])
+    #
+    #return professions, counts
+
+
+
+#def create_bar_chart(professions, counts, fig):
+ #   ax = fig.add_subplot(111)  # Create an axis on the figure
+  #  ax.bar(professions, counts, color='skyblue')
+   # ax.set_xlabel("Profesión")
+    #ax.set_ylabel("Cantidad de Empleados")
+  #  ax.set_title("Empleados por Profesión en {selected_country}")
+   # ax.set_xticks(rotation=45, ha='right')
+   # print(professions)
+
+
+
+
+    #canvas1 = FigureCanvasTkAgg(fig, master=left_panel)
+    #canvas1.draw()
+    #canvas1.get_tk_widget().pack(side=ctk.TOP, fill=ctk.BOTH, expand=True)
+
+
+#def create_bar_chart(professions, counts):
+ #   fig1=plt.figure(figsize=(10, 6))
+  # plt.xlabel("Profesión")
+   # plt.ylabel("Cantidad de Empleados")
+    #plt.title("Empleados por Profesión en {selected_country}")  # Replace with selected country
+    #plt.xticks(rotation=45, ha='right')
+    #plt.tight_layout()
+   # plt.show()
+    #canvas1 = FigureCanvasTkAgg(fig1, master=left_panel)
+    #canvas1.draw()
+    #canvas1.get_tk_widget().pack(side=ctk.TOP, fill=ctk.BOTH, expand=True)
+
 #query = """
     #SELECT
     #pais,
@@ -399,8 +478,7 @@ cant_p=cursor.execute("Select count(Profesion) FROM Informacion WHERE Pais =  GR
 #"""
 
 #cursor.execute(query)
-data = cursor.fetchall()
-conn.close()
+
 
 # Preparar los datos
 #paises = [row[0] for row in data]
@@ -408,7 +486,7 @@ conn.close()
 #x = np.arange(len(paises))
 
 # Crear el gráfico
-fig1, ax1 = plt.subplots()
+#fig1, ax1 = plt.subplots()
 #ax1.bar(fig1, ax1)
 #ax1.set_xticks(fig1)
 #ax1.set_xticklabels(paises, rotation=45, ha="right")
@@ -416,9 +494,7 @@ fig1, ax1 = plt.subplots()
 #ax1.set_ylabel("cantidad de empleados")
 #ax1.set_title("Profesiones por Pais")
 
-canvas1 = FigureCanvasTkAgg(fig1, master=left_panel)
-canvas1.draw()
-canvas1.get_tk_widget().pack(side=ctk.TOP, fill=ctk.BOTH, expand=True)
+
 
 
 
