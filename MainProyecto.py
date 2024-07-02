@@ -45,12 +45,6 @@ def csv_a_sqlite(csv_file, database_name, table_name):
     # Cerrar la conexión
     conn.close()
 
-csv_file = "data_a_procesar.csv.csv" 
-database_name = "data_a_procesar.db"
-table_name = "Informacion"
-csv_a_sqlite("data_a_procesar.csv.csv", "data_a_procesar.db", "Informacion")
-
-
 
 def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=None, where_value=None):
     
@@ -184,7 +178,7 @@ def seleccionar_archivo():
     archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])
     if archivo:
         print(f"Archivo seleccionado: {archivo}")
-        mostrar_datos(archivo)
+        tabla(archivo)
 
 def on_scrollbar_move(*args):
     canvas1.yview(*args)
@@ -197,15 +191,15 @@ def leer_archivo_csv(ruta_archivo):
     except Exception as e:
         print(f"Error al leer el archivo CSV: {e}")
 
-def tabla():
-    def abrir_csv(archivo):
-        dataframe = pd.read_csv(archivo)
-        encabezado = dataframe.columns.tolist()
-        data= dataframe.values.tolist()
-        data.insert(0,encabezado)
-        return data
+def abrir_csv(archivo):
+    dataframe = pd.read_csv(archivo)
+    encabezado = dataframe.columns.tolist()
+    data= dataframe.values.tolist()
+    data.insert(0,encabezado)
+    return data
 
-    data=abrir_csv("data_a_procesar.csv.csv")
+def tabla(archivo):
+    data=abrir_csv(archivo)
     tabla_ordenada=CTkTable(master=scrollable_frame, row=len(data), column=len(data[0]), values=data)
     tabla_ordenada.pack(expand=True, fill= "both", padx=15, pady=15)
 
