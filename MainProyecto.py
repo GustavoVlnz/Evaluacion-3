@@ -25,13 +25,8 @@ def haversine(lat1, lon1, lat2, lon2):#Funcion para calcular la distancia entre 
     a=(math.sin(rad*dlat/2))*2+math.cos(rad*lat1)*math.cos(rad*lat2)(math.sin(rad*dlon/2))**2
     distancia=2*R*math.asin(math.sqrt(a))
 
-    
-    
+    return distancia
 
-    
-
-
-    return print(distancia) 
 
 
 def csv_a_sqlite(csv_file, database_name, table_name):
@@ -45,9 +40,6 @@ def csv_a_sqlite(csv_file, database_name, table_name):
     """
     # Leer el archivo CSV en un DataFrame de pandas
     df = pd.read_csv(csv_file)
-    # Imprimir las primeras filas del DataFrame para verificar que se ha leído correctamente
-    print("Primeras filas del DataFrame:")
-    print(df.head())
     # Conectar a la base de datos SQLite (o crearla si no existe)
     conn = sqlite3.connect(database_name)
     # Insertar los datos del DataFrame en una tabla de la base de datos
@@ -77,8 +69,6 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     conn = sqlite3.connect(database_name)
     cursor = conn.cursor()
 
-
-
     # Crear la consulta SQL
     query = f'SELECT {columns} FROM {table_name}'
     if where_column and where_value is not None:
@@ -102,6 +92,8 @@ def get_country_city(lat,long):
     city = tkintermapview.convert_coordinates_to_city(lat, long)
     return country,city
 # Definir la función para convertir UTM a latitud y longitud
+
+
 
 def utm_to_latlong(easting, northing, zone_number, zone_letter):
     # Crear el proyector UTM
@@ -127,7 +119,7 @@ def combo_event2(value):
         pass
     result=ejecutar_query_sqlite('data_a_procesar.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
     nombre_apellido=str(result[0][2])+' '+str(result[0][3])
-    marker_2 = map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
+    marker_2 = ctk.map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
 
 def combo_event(value):
     mapas.set_address("moneda, santiago, chile")
@@ -135,6 +127,10 @@ def combo_event(value):
     mapas.set_zoom(15)
     address = tkintermapview.convert_address_to_coordinates("London")
     print(address)
+
+    ruts_list = ("csv_file")
+    optionmenu_1.set_values(ruts_list)
+    pass
 
 def center_window(window, width, height):
     # Obtener el tamaño de la ventana principal
@@ -184,8 +180,8 @@ def seleccionar_archivo():
         mostrar_datos(archivo)
 
 def on_scrollbar_move(*args):
-    canvas.yview(*args)
-    canvas.bbox("all")
+    canvas1.yview(*args)
+    canvas1.bbox("all")
     
 def leer_archivo_csv(ruta_archivo):
     try:
@@ -194,22 +190,21 @@ def leer_archivo_csv(ruta_archivo):
     except Exception as e:
         print(f"Error al leer el archivo CSV: {e}")
 
+def tabla():
+    def abrir_csv(archivo):
+        dataframe = pd.read_csv(archivo)
+        encabezado = dataframe.columns.tolist()
+        data= dataframe.values.tolist()
+        data.insert(0,encabezado)
+        return data
+
+    data=abrir_csv("data_a_procesar.csv.csv")
+    tabla_ordenada=CTkTable(master=scrollable_frame, row=len(data), column=len(data[0]), values=data)
+    tabla_ordenada.pack(expand=True, fill= "both", padx=15, pady=15)
+
 
 # Función para mostrar los datos en la tabla
 def mostrar_datos(datos):
-
-    nombreIndices, resultados = ejecutar_query_sqlite(database_name, table_name)
-    tabla = ctk.CTkTextbox(home_frame, width=800, height=400)
-    tabla.grid(row=1, column=0, padx=20, pady=20)
-    
-    encabezados = "\t".join(nombreIndices) + "\n"
-    tabla.insert(ctk.END, encabezados)
-
-    for fila in resultados:
-        texto_fila = "\t".join(map(str, fila)) + "\n"
-        tabla.insert(ctk.END, texto_fila)
-    
-    tabla.configure(state='disabled')
 
 
     boton_imprimir = ctk.CTkButton(
@@ -229,6 +224,7 @@ def mostrar_datos(datos):
     home_frame_cargar_datos = ctk.CTkButton(data_panel_superior, command=mostrar_datos, text="Cargar Archivo", fg_color='green', hover_color='gray')
     home_frame_cargar_datos.grid(row=0, column=1, padx=15, pady=15)
 
+    tabla()
 
 
 
@@ -392,7 +388,7 @@ combobox_left.pack(pady=20, padx=20)
 
 
 
-cant_p=cursor.execute("Select count(Profesion) FROM Informacion WHERE Pais =  GROUP BY Profesion")
+cant_p=cursor.execute("Select count(Profesion) FROM Informacion WHERE Pais = Profesion GROUP BY Profesion")
 #query = """
     #SELECT
     #pais,
