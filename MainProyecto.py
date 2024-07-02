@@ -16,6 +16,13 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import csv 
+
+
+# Crear la ventana principal
+root = ctk.CTk()
+root.title("Proyecto Final progra I 2024")
+root.geometry("950x450")
+
 def haversine(lat1, lon1, lat2, lon2):#Funcion para calcular la distancia entre 2 puntos a partir de la longitud
     rad=math.pi/180
     dlat=lat2-lat1
@@ -23,39 +30,19 @@ def haversine(lat1, lon1, lat2, lon2):#Funcion para calcular la distancia entre 
     R=48.860381, 2.338594
     a=(math.sin(rad*dlat/2))**2+math.cos(rad*lat1)*math.cos(rad*lat2)*(math.sin(rad*dlon/2))**2
     distancia=2*R*math.asin(math.sqrt(a))
-
-  
-    
-
-    
-
-
-    return print(distancia) 
+    pass
+print(haversine)
 
 
 def csv_a_sqlite(csv_file, database_name, table_name):
-    """
-    Convierte un archivo CSV a una base de datos SQLite.
-
-    Parámetros:
-    csv_file (str): Nombre del archivo CSV.
-    database_name (str): Nombre del archivo de la base de datos SQLite.
-    table_name (str): Nombre de la tabla para almacenar los datos del CSV.
-    """
     # Leer el archivo CSV en un DataFrame de pandas
     df = pd.read_csv(csv_file)
-    # Imprimir las primeras filas del DataFrame para verificar que se ha leído correctamente
-    print("Primeras filas del DataFrame:")
-    print(df.head())
-    # Conectar a la base de datos SQLite (o crearla si no existe)
+
     conn = sqlite3.connect(database_name)
     # Insertar los datos del DataFrame en una tabla de la base de datos
     df.to_sql(table_name, conn, if_exists='replace', index=False)
     # Cerrar la conexión
     conn.close()
-
-
-
 
 csv_file = "data_a_procesar.csv.csv" 
 database_name = "data_a_procesar.db"
@@ -63,26 +50,12 @@ table_name = "Informacion"
 csv_a_sqlite("data_a_procesar.csv.csv", "data_a_procesar.db", "Informacion")
 
 
+
 def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=None, where_value=None):
-    """
-    Ejecuta una consulta SQL en una base de datos SQLite y retorna una lista con los resultados.
-
-    Parámetros:
-    database_name (str): Nombre del archivo de la base de datos SQLite.
-    table_name (str): Nombre de la tabla para realizar la consulta.
-    columns (str): Columnas a seleccionar (por defecto es '*').
-    where_column (str): Nombre de la columna para la cláusula WHERE (opcional).
-    where_value (any): Valor para la cláusula WHERE (opcional).
-
-    Retorna:
-    list: Lista con los resultados de la consulta.
-    """
+    
     # Conectar a la base de datos SQLite
     conn = sqlite3.connect(database_name)
     cursor = conn.cursor()
-
-
-
     # Crear la consulta SQL
     query = f'SELECT {columns} FROM {table_name}'
     if where_column and where_value is not None:
@@ -93,33 +66,21 @@ def ejecutar_query_sqlite(database_name, table_name, columns='*', where_column=N
     # Obtener los resultados de la consulta
     resultados = cursor.fetchall()
     indices = [description[0] for description in cursor.description]
-    # Impresión de los RUTs
-    for rut in resultados:
-        print(rut[0])
+
     conn.close()
-
-    return [indices, resultados]
-
+    return indices, resultados
 
 
 
 def agregar_df_a_sqlite(df, database_name, table_name):
-    """
-    Agrega un DataFrame a una tabla SQLite.
-
-    Parámetros:
-    df (pd.DataFrame): DataFrame a agregar a la base de datos.
-    database_name (str): Nombre del archivo de la base de datos SQLite.
-    table_name (str): Nombre de la tabla donde se insertará el DataFrame.
-    """
     # Conectar a la base de datos SQLite
     conn = sqlite3.connect(database_name)
-
     # Agregar el DataFrame a la tabla SQLite
     df.to_sql(table_name, conn, if_exists='replace', index=False)
     
     # Cerrar la conexión
     conn.close()
+
 
 #documentacion=https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-path-from-position-list
 def get_country_city(lat,long):
@@ -128,6 +89,7 @@ def get_country_city(lat,long):
     city = tkintermapview.convert_coordinates_to_city(lat, long)
     return country,city
 # Definir la función para convertir UTM a latitud y longitud
+
 
 def utm_to_latlong(easting, northing, zone_number, zone_letter):
     # Crear el proyector UTM
@@ -138,24 +100,21 @@ def utm_to_latlong(easting, northing, zone_number, zone_letter):
     return round(latitude,2), round(longitude,2)
 
 
-
-
 def insertar_data(data:list):
-
-    
     pass
     #necesitamos convertir las coordenadas UTM a lat long
+
 
 def combo_event2(value):
     try:
         marker_2.delete()
     except NameError:
         pass
-    result=ejecutar_query_sqlite('data_a_procesar.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
+    result=ejecutar_query_sqlite('progra2024_final.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
     nombre_apellido=str(result[0][2])+' '+str(result[0][3])
     marker_2 = map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
-   
-    
+
+
 def combo_event(value):
 
     mapas.set_address("moneda, santiago, chile")
@@ -164,9 +123,7 @@ def combo_event(value):
     address = tkintermapview.convert_address_to_coordinates("London")
     print(address)
 
-    ruts_list = csv_file  # Replace with your function to fetch RUTs
-    optionmenu_1.set_values(ruts_list)
-    
+
     pass
     #mapas.set_address("moneda, santiago, chile")
     #mapas.set_position(48.860381, 2.338594)  # Paris, France
@@ -233,32 +190,22 @@ def leer_archivo_csv(ruta_archivo):
         print(f"Error al leer el archivo CSV: {e}")
 
 
+def tabla():
+    def abrir_csv(archivo_csv):
+        dataframe = pd.read_csv(archivo_csv)
+        encabezado = dataframe.columns.tolist()
+        data= dataframe.values.tolist()
+        data.insert(0, encabezado)
+        return data
+    
+    archivo_csv="data_a_procesar.csv.csv"
+    data = abrir_csv(archivo_csv)
+    tabla_ordenada=CTkTable(master=scrollable_frame, row=len(data), column=len(data[0]), values=data)
+    tabla_ordenada.pack(expand= True, fill = "both", padx=15, pady=15)
+
+
 # Función para mostrar los datos en la tabla
 def mostrar_datos(datos):
-
-
-    nombreIndices, resultados = ejecutar_query_sqlite(database_name, table_name)
-    tabla = ctk.CTkTextbox(home_frame, width=800, height=400)
-    tabla.grid(row=1, column=0, padx=20, pady=20)
-    
-    encabezados = "\t".join(nombreIndices) + "\n"
-    tabla.insert(ctk.END, encabezados)
-
-    for fila in resultados:
-        texto_fila = "\t".join(map(str, fila)) + "\n"
-        tabla.insert(ctk.END, texto_fila)
-    
-    tabla.configure(state='disabled')
-
-
-
-    with open(datos, newline='') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-        for row in spamreader:
-            print(', '.join(row))
-
-
-  
 
     # Botón para imprimir las filas seleccionadas
     boton_imprimir = ctk.CTkButton(
@@ -275,10 +222,10 @@ def mostrar_datos(datos):
         master=data_panel_superior, text="Eliminar dato", command=lambda: editar_panel(root),fg_color='purple',hover_color='red')
     boton_imprimir.grid(row=0, column=3, padx=(10, 0))
 
-
     home_frame_cargar_datos = ctk.CTkButton(data_panel_superior, command=mostrar_datos, text="Cargar Archivo", fg_color='green', hover_color='gray')
     home_frame_cargar_datos.grid(row=0, column=1, padx=15, pady=15)
-
+    
+    tabla()
 
 
 
@@ -309,8 +256,10 @@ def frame_2_button_event():
 def frame_3_button_event():
     select_frame_by_name("frame_3")
 
+
 def change_appearance_mode_event(new_appearance_mode):
     ctk.set_appearance_mode(new_appearance_mode)
+
 
 def mapas(panel):
     # create map widget
@@ -319,10 +268,7 @@ def mapas(panel):
     map_widget.pack(fill=ctk.BOTH, expand=True)
     return map_widget
 
-# Crear la ventana principal
-root = ctk.CTk()
-root.title("Proyecto Final progra I 2024")
-root.geometry("950x450")
+
 
 # Configurar el diseño de la ventana principal
 root.grid_rowconfigure(0, weight=1)
@@ -515,15 +461,13 @@ label_rut = ctk.CTkLabel(third_frame_top, text="RUT",font=ctk.CTkFont(size=15, w
 
 label_rut.grid(row=0, column=0, padx=5, pady=5)
 optionmenu_1 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
-values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
-
+                                                        values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
 optionmenu_1.grid(row=0, column=1, padx=5, pady=(5, 5))
 
 
 optionmenu_2 = ctk.CTkOptionMenu(third_frame_top, dynamic_resizing=True,
 values=["Value 1", "Value 2", "Value Long Long Long"],command=lambda value:combo_event(value))
-optionmenu_2.grid(row=0, column=1, padx=5, pady=(5, 5))
-
+optionmenu_2.grid(row=10, column=1, padx=5, pady=(5, 5))
 
 
 
