@@ -23,16 +23,27 @@ root = ctk.CTk()
 root.title("Proyecto Final progra I 2024")
 root.geometry("950x450")
 
-def haversine(lat1, lon1, lat2, lon2):#Funcion para calcular la distancia entre 2 puntos a partir de la longitud
-    rad=math.pi/180
-    dlat=lat2-lat1
-    dlon=lon2-lon1
-    R=48.860381, 2.338594
-    a=(math.sin(rad*dlat/2))*2+math.cos(rad*lat1)*math.cos(rad*lat2)(math.sin(rad*dlon/2))**2
-    distancia=2*R*math.asin(math.sqrt(a))
+def haversine(lat1, lon1, lat2, lon2):
+    # Convertir grados a radianes
+    rad = math.pi / 180
+    dlat = (lat2 - lat1) * rad
+    dlon = (lon2 - lon1) * rad
+
+    lat1 = lat1 * rad
+    lat2 = lat2 * rad
+
+    R = 6371
+
+    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    distancia = R * c
 
     return distancia
 
+lat1, lon1 = 48.8566, 2.3522  # París
+lat2, lon2 = 51.5074, -0.1278  # Londres
+distancia = haversine(lat1, lon1, lat2, lon2)
+print(f"La distancia entre París y Londres es de {distancia:.2f} km")
 
 
 def csv_a_sqlite(csv_file, database_name, table_name):
