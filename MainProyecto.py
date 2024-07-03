@@ -379,27 +379,21 @@ top_left_panel.pack(side=ctk.LEFT, fill=ctk.X, expand=True)
 top_right_panel = ctk.CTkFrame(top_frame)
 top_right_panel.pack(side=ctk.RIGHT, fill=ctk.X, expand=True)
 
-# Agregar un Combobox al panel superior derecho
-conn = sqlite3.connect('data_a_procesar.db')
-cursor = conn.cursor()
-emotions= [emocion[0] for emocion in cursor.execute("SELECT DISTINCT Estado_Emocional FROM Informacion").fetchall()]
-combobox_right = ctk.CTkComboBox(top_right_panel,state="readonly", values=emotions)
-combobox_right.set("seleccione estado emocional")
-combobox_right.pack(pady=20, padx=20)
 
 
 
 
 
-# Agregar un Combobox al panel superior izquierdo
 
 
-# Connect to the database
+
+# Conneccion a la database
+
 conn = sqlite3.connect('data_a_procesar.db')
 cursor = conn.cursor()
 
 def combo_evento(selected_value):
-    print(f"Selected Value: {selected_value}")
+    print(f"valor seleccionado: {selected_value}")
     create_bar_chart(selected_value)
 
 paises = [pais[0] for pais in cursor.execute("SELECT DISTINCT Pais FROM Informacion").fetchall()]
@@ -408,7 +402,7 @@ combobox_left.pack(pady=20, padx=20)
 combobox_left.set("Seleccione el país")
 
 def create_bar_chart(selected_country):
-    profesiones = [prof[0] for prof in cursor.execute("SELECT DISTINCT Profesion FROM Informacion WHERE Pais = ?", (selected_country,)) if prof]
+    profesiones = [prof[0] for prof in cursor.execute("SELECT DISTINCT Profesion FROM Informacion WHERE Pais = ?", (selected_country,)) ]
     if not profesiones:
         print(f"No hay profesiones para el país seleccionado: {selected_country}")
         return
@@ -515,23 +509,69 @@ def create_bar_chart(selected_country):
 
 
 
+# Agregar un Combobox al panel superior derecho
+
+emotions = [emocion[0] for emocion in cursor.execute("SELECT DISTINCT Estado_Emocional FROM Informacion").fetchall()]
+combobox_right = ctk.CTkComboBox(top_right_panel, state="readonly", values=emotions, command=combo_event2)
+combobox_right.set("seleccione estado emocional")
+combobox_right.pack(pady=20, padx=20)
+#el objetivo principal de cursor.execute()es ejecutar sentencias SQL en la base de datos
 
 
-# Crear el gráfico de torta en el panel derecho
+
+def update_pie_chart(selected_emotion):
+    
+
+  
+
+    # Borrar los datos existentes del gráfico circular
+    ax2.clear()
+
+    #  Obtener datos de la base de datos en funcion de la emocion seleccionada
+   
+    cursor = conn.cursor()
+    query = "SELECT DISTINCT Profesion, COUNT(*) AS Profesionales FROM Informacion WHERE Estado_emocional = ?"
+    cursor.execute(query, (selected_emotion,))
+    data2 = cursor.fetchall()
+
+    # Extraer etiquetas y recuentos de profesiones
+    labels2 = [row[0] for row in data2]
+    sizes2 = [row[1] for row in data2]
+
+    if not sizes2:  
+        labels2= ["No data found"]
+        sizes2 = [1]
+        colors = ['gray']
+        
+
+    
+    ax2.pie(sizes2, labels2=labels2, colors=colors, autopct='%1.1f%%')
+    ax2.axis('equal')  # se asegura que sea circular
+    ax2.set_title("Estado emocional vs Profesion")
+
+    # Actualiza el canva2 y vuelve a dibujar el gráfico circular
+    canvas2.draw()
+
+
 fig2, ax2 = plt.subplots()
-labels = 'A', 'B', 'C', 'D'
-sizes = [15, 30, 45, 10]
+labels2 = []  #
+sizes2 = []  #Tamaños inicialmente vacíos
 colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
-explode = (0.1, 0, 0, 0)  # explotar la porción 1
 
-ax2.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
-ax2.axis('equal')  # para que el gráfico sea un círculo
-ax2.set_title("Estado emocional vs profesion")
 
-# Integrar el gráfico de torta en el panel derecho
+
+
 canvas2 = FigureCanvasTkAgg(fig2, master=right_panel)
 canvas2.draw()
 canvas2.get_tk_widget().pack(side=ctk.TOP, fill=ctk.BOTH, expand=True)
+
+
+def combo_event2(selected_emotion):
+    print(f"la emocion seleccionada es: {selected_emotion}")
+    update_pie_chart(selected_emotion) 
+
+
+
 
 
 # Crear el tercer marco
