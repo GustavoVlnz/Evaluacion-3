@@ -40,10 +40,11 @@ def haversine(lat1, lon1, lat2, lon2):
 
     return distancia
 
-lat1, lon1 = 48.8566, 2.3522  # París
-lat2, lon2 = 51.5074, -0.1278  # Londres
+
+lat1, lon1 = 56.38, -66.81  # París
+lat2, lon2 = 38.85, 129.23  # Londres
 distancia = haversine(lat1, lon1, lat2, lon2)
-print(f"La distancia entre París y Londres es de {distancia:.2f} km")
+print(f"La distancia entre Juan Perez y Andres Morales es de {distancia:.2f} km")
 
 
 def csv_a_sqlite(csv_file, database_name, table_name):
@@ -100,13 +101,20 @@ def get_country_city(lat,long):
 # Definir la función para convertir UTM a latitud y longitud
 
 
-def utm_to_latlong(easting, northing, zone_number, zone_letter):
+def utm_to_latlong(easting, northing, zone_number):
     # Crear el proyector UTM
     utm_proj = pyproj.Proj(proj='utm', zone=zone_number, datum='WGS84')
     
     # Convertir UTM a latitud y longitud
     longitude, latitude = utm_proj(easting, northing, inverse=True)
     return round(latitude,2), round(longitude,2)
+
+easting=520000
+northing=4300000
+zone_number=52
+distancia_persona=utm_to_latlong(easting, northing, zone_number)
+print (f"las coordenas de la  persona son {distancia_persona}")
+
 
 
 def insertar_data(data:list):
@@ -119,7 +127,7 @@ def combo_event2(value):
         marker_2.delete()
     except NameError:
         pass
-    result=ejecutar_query_sqlite('progra2024_final.db', 'personas_coordenadas',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
+    result=ejecutar_query_sqlite('data_a_procesar.db', 'Informacion',columns='Latitude,Longitude,Nombre,Apellido', where_column='RUT', where_value=value)
     nombre_apellido=str(result[0][2])+' '+str(result[0][3])
     marker_2 = map_widget.set_marker(result[0][0], result[0][1], text=nombre_apellido)
 
@@ -186,10 +194,12 @@ def editar_panel(root):
 # Función para manejar la selección del archivo
 
 def seleccionar_archivo():
+    global archivo
     archivo = filedialog.askopenfilename(filetypes=[("Archivos CSV", "*.csv")])
     if archivo:
         print(f"Archivo seleccionado: {archivo}")
-        tabla(archivo)
+
+        return mostrar_datos(archivo)
 
 def on_scrollbar_move(*args):
     canvas1.yview(*args)
@@ -210,9 +220,10 @@ def abrir_csv(archivo):
     return data
 
 def tabla(archivo):
-    data=abrir_csv(archivo)
-    tabla_ordenada=CTkTable(master=scrollable_frame, row=len(data), column=len(data[0]), values=data)
-    tabla_ordenada.pack(expand=True, fill= "both", padx=15, pady=15)
+
+    data = abrir_csv(archivo)
+    tabla_ordenada = CTkTable(master=scrollable_frame, row=len(data), column=len(data[0]), values=data)
+    tabla_ordenada.pack(expand=True, fill="both", padx=15, pady=15)
 
 
 # Función para mostrar los datos en la tabla
@@ -236,7 +247,8 @@ def mostrar_datos(datos):
     home_frame_cargar_datos = ctk.CTkButton(data_panel_superior, command=mostrar_datos, text="Cargar Archivo", fg_color='green', hover_color='gray')
     home_frame_cargar_datos.grid(row=0, column=1, padx=15, pady=15)
     
-    tabla()
+    
+    tabla(archivo)
 
 
 
@@ -379,6 +391,7 @@ top_left_panel.pack(side=ctk.LEFT, fill=ctk.X, expand=True)
 top_right_panel = ctk.CTkFrame(top_frame)
 top_right_panel.pack(side=ctk.RIGHT, fill=ctk.X, expand=True)
 
+
 # Agregar un Combobox al panel superior derecho
 conn = sqlite3.connect('data_a_procesar.db')
 cursor = conn.cursor()
@@ -387,58 +400,23 @@ combobox_right = ctk.CTkComboBox(top_right_panel, values=emotions)
 combobox_right.pack(pady=20, padx=20)
 
 
-
-
-
-# Agregar un Combobox al panel superior izquierdo
-
 paises= [pais[0] for pais in cursor.execute("SELECT DISTINCT Pais FROM Informacion").fetchall()]
 combobox_left = ctk.CTkComboBox(top_left_panel, values= paises)
 combobox_left.pack(pady=20, padx=20)
 # Crear el grafico de barras en el panel izquierdo
 
-
-
 cant_p=cursor.execute("Select count(Profesion) FROM Informacion WHERE Pais = Profesion GROUP BY Profesion")
-#query = """
-    #SELECT
-    #pais,
-    #COUNT(DISTINCT Profesion) AS cantidad_profesiones
-    #FROM
-   # Informacion
-  #  GROUP BY
- #   pais;
-#"""
 
 #cursor.execute(query)
 data = cursor.fetchall()
 conn.close()
 
-# Preparar los datos
-#paises = [row[0] for row in data]
-#cantidad_profesiones = [row[1] for row in data]
-#x = np.arange(len(paises))
-
 # Crear el gráfico
 fig1, ax1 = plt.subplots()
-#ax1.bar(fig1, ax1)
-#ax1.set_xticks(fig1)
-#ax1.set_xticklabels(paises, rotation=45, ha="right")
-#ax1.set_xlabel("Profesion")
-#ax1.set_ylabel("cantidad de empleados")
-#ax1.set_title("Profesiones por Pais")
 
 canvas1 = FigureCanvasTkAgg(fig1, master=left_panel)
 canvas1.draw()
 canvas1.get_tk_widget().pack(side=ctk.TOP, fill=ctk.BOTH, expand=True)
-
-
-
-
-
-
-
-
 
 
 # Crear el gráfico de torta en el panel derecho
